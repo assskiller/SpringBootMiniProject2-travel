@@ -26,7 +26,7 @@
             <td v-text="province.placeCounts">20</td>
             <td>
                 <a href="#" @click="deleteProvince(province.id)">删除省份</a>
-                <a href="#">景点列表</a>
+                <a :href="'./placeList.html?id='+province.id">景点列表</a>
                 <a :href="'./provinceUpdate.html?id='+province.id">修改省份</a>
             </td>
         </tr>

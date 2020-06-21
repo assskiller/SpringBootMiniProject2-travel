@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/my.css" />
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    <div class = "empTable">
+        <h1 style="text-align: center">景点信息</h1>
+        <table class="table table-striped">
+            <tr>
+                <td>id</td>
+                <td>景点</td>
+                <td>印象图</td>
+                <td>旺季时间</td>
+                <td>旺季门票</td>
+                <td>淡季门票</td>
+                <td>简介</td>
+                <td>操作</td>
+            </tr>
+            <tr v-for="place in places">
+                <td v-text="place.id">1</td>
+                <td v-text="place.name">天安门</td>
+                <td v-text="place.picPath">图片</td>
+                <td v-text="place.hotTime">-----</td>
+                <td v-text="place.hotTicket">10</td>
+                <td v-text="place.dimTicket">10</td>
+                <td v-text="place.placeDes">天安门很美</td>
+                <td>
+                    <a href="#" >删除景点</a>
+                    <a href="#">修改景点</a>
+                </td>
+            </tr>
+        </table>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li>
+                    <a href="#" aria-label="Previous" @click="goToLastPage" >
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li v-for="pageIndex in totalPages">
+                    <a href="#" v-text="pageIndex" @click="goToPage(pageIndex)"></a>
+                </li>
+                <li>
+                    <a href="#" aria-label="Next" @click="goToNextPage">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <a class="btn btn-default" href="./provinceAdd.html">添加景点</a>
+    </div>
+</div>
+</body>
+</html>
+<!--引入vue和axios-->
+<script src="js/vue.js"></script>
+<script src="js/axios.min.js"></script>
+<script>
+    const app = new Vue({
+        el: "#app",
+        data:{
+            page:1,
+            rows:3,
+            provinceId:1,
+            totals:0,
+            totalPages:0,
+            places:[]
+
+        },
+        methods:{
+            findAll(){
+                axios.get("http://localhost:8989/place/findAll?page="+this.page+"&rows="+this.rows+"&provinceId="+this.provinceId).then((res)=>{
+                    this.places = res.data.object.places;
+                    this.totals = res.data.object.totalCounts;
+                    this.totalPages = res.data.object.totalPages;
+                    console.log(this.places);
+                });
+            },
+            goToLastPage()
+            {
+                if(this.page > 1)
+                {
+                    this.page -=1;
+                    this.findAll();
+                }
+            },
+            goToNextPage()
+            {
+                if(this.page < this.totalPages)
+                {
+                    this.page +=1;
+                    this.findAll();
+                }
+
+            },
+            goToPage(pageIndex)
+            {
+                this.page = pageIndex;
+                this.findAll();
+            },
+        },
+        created(){
+            this.provinceId = location.href.substring(location.href.indexOf("=")+1);
+            this.findAll();
+        }
+    })
+</script>
