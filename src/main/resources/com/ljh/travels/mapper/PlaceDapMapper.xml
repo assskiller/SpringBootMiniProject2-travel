@@ -10,4 +10,9 @@
     <select id="findByProvinceIdCounts" parameterType="String" resultType="Integer">
         select count(id) from t_places where provinceid=#{provinceId};
     </select>
+
+    <!--添加place-->
+    <insert id="save" parameterType="Place" useGeneratedKeys="true" keyProperty="id">
+        insert into t_places values (#{id},#{name},#{picPath},#{hotTime},#{hotTicket},#{dimTicket},#{placeDes},#{provinceId});
+    </insert>
 </mapper>

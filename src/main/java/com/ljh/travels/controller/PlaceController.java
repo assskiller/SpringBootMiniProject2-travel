@@ -3,12 +3,17 @@ package com.ljh.travels.controller;
 import com.ljh.travels.entity.Place;
 import com.ljh.travels.entity.Result;
 import com.ljh.travels.service.PlaceService;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.Base64Utils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +24,9 @@ import java.util.Map;
 public class PlaceController {
     @Autowired
     private PlaceService placeService;
+
+    @Value("${upload.dir}")
+    private String realPath;
 
     /**
      *
@@ -55,4 +63,25 @@ public class PlaceController {
         result.setObject(map);
         return result;
     }
+
+    @PostMapping("save")
+    public Result save(MultipartFile pic,Place place) throws IOException {
+        Result result = new Result();
+        try {
+            //先进行base64编码,再保存文件,不然会报错(其实保不保存无所谓,因为我已经编码存储到数据库中了)
+            place.setPicPath(Base64Utils.encodeToString(pic.getBytes()));
+            //文件保存
+            String newFileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) +"."+ FilenameUtils.getExtension(pic.getOriginalFilename());
+            pic.transferTo(new File(realPath,newFileName));
+            //保存place对象
+            placeService.save(place);
+            result.setState(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setState(false);
+            result.setMsg("保存景点发生错误");
+        }
+        return result;
+    }
+
 }
