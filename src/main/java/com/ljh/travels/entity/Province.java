@@ -1,15 +1,17 @@
 package com.ljh.travels.entity;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Result {
-    private Boolean state;
-    private String msg;
-    private Object object;
+@ToString
+public class Province {
+    private String id;
+    private String name;
+    private String tags;
+    private Integer placeCounts;
 }

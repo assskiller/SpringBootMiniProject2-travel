@@ -8,6 +8,7 @@
     <title>Title</title>
 </head>
 <body>
+<div id="app">
 <div class = "empTable">
     <h1 style="text-align: center">省份信息</h1>
     <table class="table table-striped">
@@ -18,19 +19,95 @@
             <td>景点个数</td>
             <td>操作</td>
         </tr>
-        <tr>
-            <td>1</td>
-            <td>北京市</td>
-            <td>首都、天安门</td>
-            <td>20</td>
+        <tr v-for="province in provinces" :key="province.id">  <!--绑定一个id，方便vue做处理-->
+            <td v-text="province.id">1</td>
+            <td v-text="province.name">北京市</td>
+            <td v-text="province.tags">首都、天安门</td>
+            <td v-text="province.placeCounts">20</td>
             <td>
-                <a href="">删除省份</a>
-                <a href="">经典列表</a>
-                <a href="">修改省份</a>
+                <a href="#" @click="deleteProvince(province.id)">删除省份</a>
+                <a href="#">景点列表</a>
+                <a :href="'./provinceUpdate.html?id='+province.id">修改省份</a>
             </td>
         </tr>
     </table>
-    <a class="btn btn-default" href="">添加省份</a>
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li>
+                <a href="#" aria-label="Previous" @click="goToLastPage">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li><a href="#" v-for="pageIndex in totalPages" v-text="pageIndex" @click="goToPage(pageIndex)"></a></li>
+            <li>
+                <a href="#" aria-label="Next" @click="goToNextPage">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <a class="btn btn-default" href="./provinceAdd.html">添加省份</a>
+</div>
 </div>
 </body>
 </html>
+<!--引入vue和axios-->
+<script src="js/vue.js"></script>
+<script src="js/axios.min.js"></script>
+<script>
+    const app = new Vue({
+        el: "#app",
+        data: {
+            provinces: [],
+            totals:0,
+            totalPages:0,
+            page:1,
+            rows:4,
+        },
+        methods: {
+            findAll(){
+                axios.get("http://localhost:8989/province/findByPage?page="+this.page+"&rows="+this.rows).then((res)=>{
+                    this.provinces = res.data.provinces;
+                    this.totals =res.data.totals;
+                    this.totalPages = res.data.totalPages;
+                });
+            },
+            goToLastPage()
+            {
+                if(this.page > 1)
+                {
+                    this.page -=1;
+                    this.findAll();
+                }
+            },
+            goToNextPage()
+            {
+                if(this.page < this.totalPages)
+                {
+                    this.page +=1;
+                    this.findAll();
+                }
+
+            },
+            goToPage(pageIndex)
+            {
+                this.page = pageIndex;
+                this.findAll();
+            },
+            deleteProvince(id)
+            {
+                axios.get("http://localhost:8989/province/delete?id="+id).then((res)=>{
+                    if(res.data.state){
+                        alert("删除省份成功");
+                    }else{
+                        alert(res.data.msg);
+                    }
+                });
+                this.findAll();
+            }
+        },
+        created(){
+            this.findAll();
+        }
+    })
+</script>
