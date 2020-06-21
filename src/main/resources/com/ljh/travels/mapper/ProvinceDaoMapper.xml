@@ -31,7 +31,7 @@
 
     <!--更新省份信息-->
     <update id="update" parameterType="Province">
-        update t_province set name=#{name},tags=#{tags} where id=#{id};
+        update t_province set name=#{name},tags=#{tags},placecounts=#{placeCounts} where id=#{id};
     </update>
 
 
