@@ -53,6 +53,7 @@
                 axios.post("http://localhost:8989/user/login",this.user).then((res)=>{
                     if(res.data.state){
                         alert(res.data.msg);
+                        location.href="./provinceList.html";
                     }
                     else{
                         alert(res.data.msg);
