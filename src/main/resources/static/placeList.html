@@ -25,14 +25,16 @@
             <tr v-for="place in places">
                 <td v-text="place.id">1</td>
                 <td v-text="place.name">天安门</td>
-                <td v-text="place.picPath">图片</td>
+                <td>
+                    <img id="myImg" :src="'data:image/png;base64,'+ place.picPath" height="100px" width="100px">
+                </td>
                 <td v-text="place.hotTime">-----</td>
                 <td v-text="place.hotTicket">10</td>
                 <td v-text="place.dimTicket">10</td>
                 <td v-text="place.placeDes">天安门很美</td>
                 <td>
-                    <a href="#" >删除景点</a>
-                    <a href="#">修改景点</a>
+                    <a href="#" @click="deletePlace(place.id)">删除景点</a>
+                    <a :href="'./placeUpdate.html?id='+place.id">修改景点</a>
                 </td>
             </tr>
         </table>
@@ -53,7 +55,8 @@
                 </li>
             </ul>
         </nav>
-        <a class="btn btn-default" href="./provinceAdd.html">添加景点</a>
+        <a class="btn btn-default" href="./placeAdd.html">添加景点</a>
+        <a class="btn btn-default" href="./provinceList.html">返回省份列表</a>
     </div>
 </div>
 </body>
@@ -104,6 +107,18 @@
                 this.page = pageIndex;
                 this.findAll();
             },
+            deletePlace(id){
+                axios.get("http://localhost:8989/place/delete?id="+id).then((res)=>{
+                    if(res.data.state){
+                        alert("删除景点成功");
+                        this.findAll();
+                    }
+                    else {
+                        alert(res.data.msg);
+                    }
+                });
+            }
+
         },
         created(){
             this.provinceId = location.href.substring(location.href.indexOf("=")+1);

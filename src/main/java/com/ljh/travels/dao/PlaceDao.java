@@ -15,4 +15,5 @@ public interface PlaceDao extends BaseDao<Place,String> {
     Integer findByProvinceIdCounts(String provinceId);
 
     void save(Place place);
+    Place findOne(String id);
 }

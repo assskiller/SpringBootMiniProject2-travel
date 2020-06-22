@@ -15,4 +15,27 @@
     <insert id="save" parameterType="Place" useGeneratedKeys="true" keyProperty="id">
         insert into t_places values (#{id},#{name},#{picPath},#{hotTime},#{hotTicket},#{dimTicket},#{placeDes},#{provinceId});
     </insert>
+
+    <!--删除place-->
+    <delete id="delete" parameterType="String" >
+        delete from t_places where id=#{id};
+    </delete>
+
+    <!--查找一个place-->
+    <select id="findOne" parameterType="String" resultType="Place" >
+        select * from t_places where id=#{id};
+    </select>
+
+    <!--更新Place-->
+    <update id="update" parameterType="Place">
+        update t_places
+        set name=#{name},
+        picpath=#{picPath},
+        hottime=#{hotTime},
+        hotticket=#{hotTicket},
+        dimticket=#{dimTicket},
+        placedes=#{placeDes},
+        provinceid=#{provinceId}
+        where id=#{id}
+    </update>
 </mapper>

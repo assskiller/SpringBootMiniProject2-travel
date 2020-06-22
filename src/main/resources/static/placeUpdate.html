@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/my.css" />
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    <div class="loginForm">
+        <h1 class="title" style="text-align: center">修改景点界面</h1>
+        <form class="form-horizontal" action="">
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">景点</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name" name="name" v-model="place.name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">印象图片</label>
+                <div class="col-sm-10">
+                    <input type="file" name="files" accept="image/*" onchange="changImg(event)" ref="myFile">
+                    <img id="myImg" :src="'data:image/png;base64,'+place.picPath" height="100px" width="100px">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="hotTime" class="col-sm-2 control-label">旺季时间</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="hotTime" name="hotTime" v-model="place.hotTime">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="hotTicket" class="col-sm-2 control-label">旺季门票</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="hotTicket" name="hotTicket" v-model="place.hotTicket">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="dimTicket" class="col-sm-2 control-label">淡季门票</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="dimTicket" name="dimTicket" v-model="place.dimTicket">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="placeDes" class="col-sm-2 control-label">景点描述</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="placeDes" name="placeDes" v-model="place.placeDes">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">所属省份</label>
+                <div class="col-sm-10">
+                    <select class="combobox" v-model="place.provinceId">
+                        <option v-for="province in provinces" v-text="province.name" :value="province.id"></option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" class="btn btn-default" @click="addPlace">确认修改</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>
+<!--引入vue和axios-->
+<script src="js/vue.js"></script>
+<script src="js/axios.min.js"></script>
+<script>
+    const app = new Vue({
+        el: "#app",
+        data:{
+            provinces:[],
+            place:{},
+        },
+        methods:{
+            getAllProvinces()
+            {
+                axios.get("http://localhost:8989/province/findByPage?page=1&rows=35").then((res)=>{
+                    this.provinces = res.data.provinces;
+                });
+            },
+            addPlace(){
+
+                //实现前后端分离的图片传输
+                let myFile = this.$refs.myFile;
+                let files = myFile.files;
+                let file = files[0];
+                let formData = new FormData();
+                formData.append("pic",file);
+                formData.append("id",this.place.id);
+                formData.append("name",this.place.name);
+                formData.append("hotTime",this.place.hotTime);
+                formData.append("hotTicket",this.place.hotTicket);
+                formData.append("dimTicket",this.place.dimTicket);
+                formData.append("provinceId",this.place.provinceId);
+                formData.append("placeDes",this.place.placeDes);
+                //axios
+                axios({
+                    method:'post',
+                    url:'http://localhost:8989/place/update',
+                    data:formData,
+                    headers:{
+                        'Content-Type':'multipart/form-data'
+                    }
+                }).then((res)=>{
+                    console.log(formData);
+                    console.log(res);
+                    if(res.data.state){
+                        alert("修改景点成功");
+                        location.href="./placeList.html?provinceId="+this.place.provinceId;
+                    }else{
+                        alert(res.data.msg);
+                    }
+                });
+            },
+            findOne(){
+                let id =location.href.substring(location.href.indexOf("=")+1);
+                axios.get("http://localhost:8989/place/findOne?id="+id).then((res)=>{
+                    if(res.data.state){
+                        this.place = res.data.object;
+                    }else{
+                        alert(res.data.msg);
+                    }
+                });
+            }
+        },
+        created()
+        {
+            this.getAllProvinces();
+            this.findOne();
+        }
+
+    });
+
+</script>
+<script>
+    function changImg(e){
+        for (var i = 0; i < e.target.files.length; i++) {
+            var file = e.target.files.item(i);
+            if (!(/^image\/.*$/i.test(file.type))) {
+                continue; //不是图片 就跳出这一次循环
+            }
+            //实例化FileReader API
+            var freader = new FileReader();
+            freader.readAsDataURL(file);
+            freader.onload = function(e) {
+                $("#myImg").attr("src",e.target.result);
+            }
+        }
+    }
+</script>
